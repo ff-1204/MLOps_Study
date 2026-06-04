@@ -1,0 +1,5 @@
+# 실습 산출물 (검증용 — 커밋 제외)
+practice/
+mlruns/
+mlflow.db
+*.log
