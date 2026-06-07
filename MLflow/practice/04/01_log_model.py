@@ -39,12 +39,12 @@ def log_and_register(model, run_name):
         mlflow.log_metric("accuracy", round(acc, 4))
 
         # ⑤ 모델 저장 + Registry 등록 (핵심!)
-        #    artifact_path        : UI Artifacts 탭에서 보일 폴더 이름
+        #    name                 : UI Artifacts 탭에서 보일 모델 이름 (구버전 artifact_path)
         #    registered_model_name: 이 이름으로 Registry에 버전이 쌓임
         #    input_example        : 입력 데이터 예시 (UI에서 확인 가능)
         mlflow.sklearn.log_model(
             model,
-            artifact_path="model",
+            name="model",
             registered_model_name="iris-classifier",
             input_example=X_test[:3],
         )

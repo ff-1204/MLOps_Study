@@ -4,6 +4,9 @@
 
 import mlflow
 
+# 저장 위치 설정 — 다른 챕터와 같은 DB를 바라보게 함
+mlflow.set_tracking_uri("sqlite:///C:/Users/myesu/Project/MLOps_Study/MLflow/practice/mlflow.db")
+
 # MlflowClient: UI 없이 코드로 실험·Run·모델을 조회·수정하는 클라이언트
 # 모델 배포 자동화, CI/CD 파이프라인 등에서 활용됨
 client = mlflow.tracking.MlflowClient()

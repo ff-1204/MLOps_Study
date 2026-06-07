@@ -68,7 +68,7 @@ with mlflow.start_run(run_name="full-pipeline"):
     mlflow.log_metric("test_accuracy",  round(test_acc, 4))
 
     # ⑧ 모델 저장 + Registry 등록
-    mlflow.sklearn.log_model(model, "model", registered_model_name="iris-final")
+    mlflow.sklearn.log_model(model, name="model", registered_model_name="iris-final")
 
     print(f"train_accuracy : {train_acc:.4f}")
     print(f"test_accuracy  : {test_acc:.4f}")

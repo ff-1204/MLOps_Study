@@ -8,6 +8,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
+# 저장 위치 설정 — 다른 챕터와 같은 DB를 바라보게 함
+mlflow.set_tracking_uri("sqlite:///C:/Users/myesu/Project/MLOps_Study/MLflow/practice/mlflow.db")
+
 mlflow.set_experiment("iris-classification")
 
 # 데이터는 모든 Run에서 동일하게 고정 — 파라미터 차이만 비교하기 위해

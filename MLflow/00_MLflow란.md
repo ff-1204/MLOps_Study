@@ -41,9 +41,9 @@ MLflow 없이 작업하면 생기는 문제:
 
 ```python
 with mlflow.start_run():
-    mlflow.log_param("learning_rate", 0.001)   # 설정값 기록
-    mlflow.log_metric("accuracy", 0.92)         # 결과 기록
-    mlflow.log_model(model, "model")            # 모델 파일 저장
+    mlflow.log_param("learning_rate", 0.001)        # 설정값 기록
+    mlflow.log_metric("accuracy", 0.92)             # 결과 기록
+    mlflow.sklearn.log_model(model, name="model")   # 모델 파일 저장
 ```
 
 그러면 나중에 UI에서 한눈에 비교할 수 있다.
@@ -52,9 +52,11 @@ with mlflow.start_run():
 
 ## MLflow의 4가지 핵심 기능
 
-### 1. Tracking (실험 추적)
+이 학습 자료는 아래 4가지를 순서대로 실습한다.
 
-실험마다 파라미터·메트릭·파일을 자동 기록한다.
+### 1. Tracking (실험 추적) — `02`, `06`
+
+실험마다 파라미터·메트릭·파일을 기록한다.
 
 ```
 Run 1: lr=0.01,   accuracy=0.80  ← 기록됨
@@ -62,7 +64,10 @@ Run 2: lr=0.001,  accuracy=0.85  ← 기록됨
 Run 3: lr=0.001,  accuracy=0.92  ← 기록됨 ✅ 최고 성능
 ```
 
-### 2. Dataset Tracking (데이터 추적)
+> 하나씩 직접 `log_param`을 쓰는 게 번거로우면 `mlflow.autolog()` 한 줄로
+> 파라미터·메트릭·모델을 통째로 자동 기록할 수 있다. (→ `06_자동_로깅.md`)
+
+### 2. Dataset Tracking (데이터 추적) — `03`
 
 어떤 데이터로 학습했는지 함께 기록한다.
 
@@ -73,7 +78,10 @@ Run 3: lr=0.001, accuracy=0.92
         └── 데이터: iris-train-v2 (digest: 4a8b...)  ← 어떤 데이터인지
 ```
 
-### 3. Model Registry (모델 관리)
+> `digest`는 데이터 내용의 고유 지문이다. 데이터가 1행이라도 바뀌면 값이 달라져서
+> "이 실험이 정확히 어떤 데이터를 썼는지" 확신할 수 있다.
+
+### 3. Model Registry (모델 관리) — `04`
 
 모델을 버전별로 관리하고, **Alias(별칭)** 로 어느 버전이 어떤 용도인지 표시한다.
 
@@ -84,16 +92,22 @@ Run 3: lr=0.001, accuracy=0.92
 └── v3  @champion    (현재 서비스 중) ✅
 ```
 
-> **참고:** 예전 MLflow는 Staging/Production 같은 고정 "Stage"를 썼지만,
-> MLflow 2.9부터 deprecated되어 자유롭게 이름 붙이는 **Alias** 방식으로 바뀌었다.
+> 코드에서 버전 번호 대신 `@champion` 같은 별칭으로 모델을 부르면,
+> 버전이 바뀌어도 코드를 고칠 필요가 없다.
 
-### 4. UI (웹 대시보드)
+### 4. Serving (모델 서빙) — `07`
 
-브라우저에서 실험 결과를 시각적으로 비교한다.
+저장된 모델을 **API 서버**로 띄워서 다른 프로그램이 예측을 요청하게 한다.
 
 ```
-http://localhost:5000 접속 → 모든 실험 결과를 표와 그래프로 확인
+mlflow models serve
+        ↓
+[API 서버]  http://localhost:5001/invocations
+   요청: {"inputs": [[5.1, 3.5, 1.4, 0.2]]}
+   응답: {"predictions": [0]}
 ```
+
+> 웹 서비스든 다른 언어(JS, Java)든 HTTP 요청만 보내면 예측 결과를 받을 수 있다.
 
 ---
 
@@ -119,6 +133,38 @@ Experiment (실험 프로젝트)
     └── ...
 ```
 
+| 용어 | 의미 | 비유 |
+|------|------|------|
+| Experiment | 실험 프로젝트 | 과학 실험 노트 제목 |
+| Run | 실험 1회 실행 | 실험 노트의 한 페이지 |
+| Parameter | 실험 전 설정값 | 레시피 재료 비율 |
+| Metric | 실험 후 결과값 | 요리 완성도 점수 |
+| Artifact | 저장된 파일 | 결과물 사진 |
+
+---
+
+## 이 자료의 학습 흐름
+
+```
+00 → 01 → 02 → 03 → 04 → 05 → 06 → 07 → 08
+개념   설치  실험  데이터  모델  UI   자동   서빙  평가
+              추적  추적   관리       로깅       
+```
+
+| 챕터 | 무엇을 배우나 |
+|------|--------------|
+| `01_환경설정` | MLflow 설치, UI 실행 |
+| `02_실험_추적` | Experiment·Run, 파라미터·메트릭 기록, 결과 비교 |
+| `03_데이터셋_추적` | `log_input`/`log_artifact`, digest, 분할·복원 |
+| `04_모델_관리` | 모델 저장, Model Registry, Alias |
+| `05_MLflow_UI_가이드` | UI 각 탭 활용 (Run 비교, Artifacts, Alias) |
+| `06_자동_로깅` | `autolog()` 한 줄 자동 기록, GridSearch |
+| `07_모델_서빙` | `models serve`로 API 서버 실행 |
+| `08_모델_평가` | `evaluate()` 자동 지표·그래프 (심화) |
+
+> 모든 실습은 `practice/` 폴더 안에 챕터별로 들어 있고,
+> 같은 `practice/mlflow.db`에 기록이 쌓여 UI 한 곳에서 전부 조회된다.
+
 ---
 
 ## MLflow vs 직접 관리
@@ -130,6 +176,7 @@ Experiment (실험 프로젝트)
 | 결과 비교 | 눈으로 하나씩 확인 | UI에서 한눈에 비교 |
 | 팀 협업 | 파일을 메신저로 공유 | Tracking Server로 공유 |
 | 이전 버전 복원 | 파일 찾아 헤맴 | Run ID로 즉시 복원 |
+| 모델 사용 | Python 코드에 직접 넣음 | API로 어디서든 호출 |
 
 ---
 
@@ -137,7 +184,7 @@ Experiment (실험 프로젝트)
 
 - **Apache License 2.0** — 완전 무료, 상업적 사용도 가능
 - UI 포함 모든 기능 무료
-- 전 세계 월 6천만 회 이상 다운로드
+- 전 세계 월 수천만 회 이상 다운로드되는 ML 표준 도구
 
 ---
 

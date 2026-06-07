@@ -9,7 +9,7 @@
 # 수동 로깅:
 #   mlflow.log_param("C", 1.0)
 #   mlflow.log_metric("accuracy", 0.97)
-#   mlflow.sklearn.log_model(model, "model")
+#   mlflow.sklearn.log_model(model, name="model")
 #   → 기록할 항목을 직접 하나씩 써야 함
 #
 # autolog:
